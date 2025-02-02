@@ -3,6 +3,8 @@ import Layout from './components/Layout.jsx';
 import ProductComponent from "./components/Collection.jsx";
 import Create from "./components/Create.jsx";
 import ProductDetail from "./components/ProductDetail.jsx";
+import Edit from "./components/Edit.jsx";
+
 
 const router = createBrowserRouter([
     {
@@ -17,9 +19,13 @@ const router = createBrowserRouter([
                 element: <Create/>,
             },
             {
-                path: '/products/:id',
+                path: '/musicAlbums/:id',
                 element: <ProductDetail/>,
             },
+            {
+                path: '/edit/:id',
+                element: <Edit/>
+            }
         ]
     }
 ]);

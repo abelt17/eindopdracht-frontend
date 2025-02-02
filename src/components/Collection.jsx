@@ -19,9 +19,16 @@ function ProductComponent() {
 
         <ul className="flex flex-wrap gap-4 p-0 m-0 list-none">
             {album ? album.map((album) => (
+
                 <li className="flex-1 min-w-[calc(25%-1rem)] max-w-[calc(25%-1rem)] box-border" key={album.id}>
                     <MusicAlbumCard album={album} />
-                    <Link to={`/musicAlbums/${album.id}`}>{album.title} details</Link>
+                    <Link
+                        to={`/musicAlbums/${album.id}`}
+                        className="mt-3 inline-block bg-sky-500 text-white px-4 py-2 rounded-md shadow-md
+               hover:bg-sky-600 transition duration-200"
+                    >
+                        {album.title} details
+                    </Link>
                 </li>
             )) : (
                 <p>Product laden...</p>
