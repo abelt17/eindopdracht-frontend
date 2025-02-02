@@ -1,7 +1,7 @@
-import React, { useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 
-function FormComponent({ onCreate}) {
+function FormComponent({onCreate}) {
     const {id} = useParams();
     const [album, setAlbum] = useState([]);
     const [formData, setFormData] = useState({
@@ -14,6 +14,7 @@ function FormComponent({ onCreate}) {
     });
 
     useEffect(() => {
+        if (!id) return;
         async function fetchData() {
             const albums = await fetch(`${import.meta.env.VITE_API_URL}/${id}`, {
 
@@ -56,8 +57,10 @@ function FormComponent({ onCreate}) {
         })
     };
     const handleTrackChange = (event, index, field) => {
-        const updatedTracklist = [...formData.tracklist];
-        updatedTracklist[index][field] = event.target.value;
+        const updatedTracklist = formData.tracklist.map((track, i) =>
+            i === index ? { ...track, [field]: event.target.value } : track
+        );
+
         setFormData((prevData) => ({ ...prevData, tracklist: updatedTracklist }));
     };
 
@@ -65,16 +68,18 @@ function FormComponent({ onCreate}) {
         event.preventDefault();
         console.log('formulier verzonden:', formData);
 
-        const newAlbum = await saveAlbum();
+        const newAlbum = await saveAlbum(formData);
         if (newAlbum) {
-            onCreate(newAlbum);
+            if (onCreate) {
+                onCreate(newAlbum);
+            }
         }
     };
 
     const addTrack = () => {
         setFormData((prevData) => ({
             ...prevData,
-            tracklist: [...prevData.tracklist, { title: "", duration: "" }]
+            tracklist: [...prevData.tracklist, {title: "", duration: ""}]
         }));
     };
 
@@ -87,15 +92,19 @@ function FormComponent({ onCreate}) {
 
     const saveAlbum = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}`, {
-                method: 'POST',
+            const method = id ? 'PUT' : 'POST';
+            const url = id
+                ? `${import.meta.env.VITE_API_URL}/${id}`
+                : `${import.meta.env.VITE_API_URL}`;
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(formData),
             });
-
+            console.log(JSON.stringify(formData))
             if (response.ok) {
                 const data = await response.json();
                 console.log('album opgeslagen:', data);
@@ -105,90 +114,106 @@ function FormComponent({ onCreate}) {
                 console.log('fout bij opslaan:', response.statusText);
                 return null;
             }
-        } catch (error){
+        } catch (error) {
             console.error('error tijdens opslaan:', error);
             return null;
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} method="POST">
-            <div>
-                <label htmlFor="title">title:</label>
-                <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label htmlFor="title">artist:</label>
-                <input
-                    type="text"
-                    id="artist"
-                    name="artist"
-                    value={formData.artist}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label htmlFor="title">genre:</label>
-                <input
-                    type="text"
-                    id="genre"
-                    name="genre"
-                    value={formData.genre}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label htmlFor="title">releaseDate:</label>
-                <input
-                    type="text"
-                    id="releaseDate"
-                    name="releaseDate"
-                    value={formData.releaseDate}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label htmlFor="title">coverImageUrl:</label>
-                <input
-                    type="text"
-                    id="coverImageUrl"
-                    name="coverImageUrl"
-                    value={formData.coverImageUrl}
-                    onChange={handleInputChange}
-                />
-            </div>
-            <div>
-                <label>Tracklist:</label>
-                {formData.tracklist.map((track, index) => (
-                    <div key={index}>
-                        <input
-                            type="text"
-                            name={`tracklist[${index}].title`}
-                            placeholder="Track Title"
-                            value={track.title}
-                            onChange={(e) => handleTrackChange(e, index, "title")}
-                        />
-                        <input
-                            type="text"
-                            name={`tracklist[${index}].duration`}
-                            placeholder="Duration"
-                            value={track.duration}
-                            onChange={(e) => handleTrackChange(e, index, "duration")}
-                        />
-                        <button type="button" onClick={() => removeTrack(index)}>Remove</button>
-                    </div>
-                ))}
-                <button type="button" onClick={addTrack}>Add Track</button>
-            </div>
-            <button type="submit">Submit</button>
-        </form>
-    );
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <form onSubmit={handleSubmit} method="POST" className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+                <div className="mb-4">
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title:</label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="artist" className="block text-sm font-medium text-gray-700">Artist:</label>
+                    <input
+                        type="text"
+                        id="artist"
+                        name="artist"
+                        value={formData.artist}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="genre" className="block text-sm font-medium text-gray-700">Genre:</label>
+                    <input
+                        type="text"
+                        id="genre"
+                        name="genre"
+                        value={formData.genre}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="releaseDate" className="block text-sm font-medium text-gray-700">Release
+                        Date:</label>
+                    <input
+                        type="date"
+                        id="releaseDate"
+                        name="releaseDate"
+                        value={formData.releaseDate}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="coverImageUrl" className="block text-sm font-medium text-gray-700">Cover Image
+                        URL:</label>
+                    <input
+                        type="text"
+                        id="coverImageUrl"
+                        name="coverImageUrl"
+                        value={formData.coverImageUrl}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">Tracklist:</label>
+                    {formData.tracklist.map((track, index) => (
+                        <div key={index} className="flex flex-col">
+                            <input
+                                type="text"
+                                name={`tracklist[${index}].title`}
+                                placeholder="Track Title"
+                                value={track.title}
+                                onChange={(e) => handleTrackChange(e, index, "title")}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                            <input
+                                type="text"
+                                name={`tracklist[${index}].duration`}
+                                placeholder="Duration"
+                                value={track.duration}
+                                onChange={(e) => handleTrackChange(e, index, "duration")}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                            <button type="button" onClick={() => removeTrack(index)}
+                                    className="px-3 py-2 bg-red-500 text-white rounded-md">Remove
+                            </button>
+                        </div>
+                    ))}
+                    <button type="button" onClick={addTrack}
+                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">Add Track
+                    </button>
+                </div>
+                <button type="submit"
+                        className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Submit
+                </button>
+            </form>
+        </div>);
 }
 
 export default FormComponent;

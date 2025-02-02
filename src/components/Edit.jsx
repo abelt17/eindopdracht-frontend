@@ -19,24 +19,8 @@ export default function Edit() {
         }
         fetchData();
     }, [id]);
-    const onAlbumEdit = async (updatedAlbum) => {
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedAlbum),
-            });
-            if (!response.ok) {
-                throw new Error("Error updating album");
-            }
-        } catch (error) {
-            console.error("Error updating album:", error);
-        }
-    };
 
     return (
-        <FormComponent onCreate={onAlbumEdit} album={album}/>
+        <FormComponent album={album}/>
     )
 }

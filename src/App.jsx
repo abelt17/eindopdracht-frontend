@@ -2,7 +2,7 @@ import {createBrowserRouter, RouterProvider} from 'react-router';
 import Layout from './components/Layout.jsx';
 import ProductComponent from "./components/Collection.jsx";
 import Create from "./components/Create.jsx";
-import ProductDetail from "./components/ProductDetail.jsx";
+import MusicAlbumDetail from "./components/ProductDetail.jsx";
 import Edit from "./components/Edit.jsx";
 
 
@@ -20,7 +20,7 @@ const router = createBrowserRouter([
             },
             {
                 path: '/musicAlbums/:id',
-                element: <ProductDetail/>,
+                element: <MusicAlbumDetail/>,
             },
             {
                 path: '/edit/:id',

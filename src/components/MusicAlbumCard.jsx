@@ -13,7 +13,7 @@ const MusicAlbumCard = ({album}) => {
                 <img
                     src={album.coverImageUrl}
                     alt={album.title}
-                    className="mt-4 rounded-lg w-full h-[200px] object-cover"
+                    className="mt-4 rounded-lg w-full h-[400px] object-cover"
                 />
             )}
         </article>
